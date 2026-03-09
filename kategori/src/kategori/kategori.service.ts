@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateKategoriDto } from './dto/create-kategori.dto';
 import { UpdateKategoriDto } from './dto/update-kategori.dto';
 import { PrismaService } from '../prisma.service';
@@ -25,17 +30,25 @@ export class KategoriService {
     });
 
     if (data.length === 0) {
-      throw new HttpException(
-        {
-          success: false,
-          message: 'data kategori tidak ditemukan',
-          metadata: {
-            status: HttpStatus.NOT_FOUND,
-            total_data: data.length,
-          },
+      // throw new HttpException(
+      //   {
+      //     success: false,
+      //     message: 'data kategori tidak ditemukan',
+      //     metadata: {
+      //       status: HttpStatus.NOT_FOUND,
+      //       total_data: data.length,
+      //     },
+      //   },
+      //   HttpStatus.NOT_FOUND,
+      // );
+      throw new NotFoundException({
+        success: false,
+        message: 'data kategori tidak ditemukan',
+        metadata: {
+          status: HttpStatus.NOT_FOUND,
+          total_data: data.length,
         },
-        HttpStatus.NOT_FOUND,
-      );
+      });
     }
 
     return {
