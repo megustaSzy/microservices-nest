@@ -97,8 +97,33 @@ export class KategoriService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} kategori`;
+  // fungsi detail data
+  async findOne(id: number) {
+    // tampilkan data berdasarkan id
+    const data = await this.prisma.kategori.findUnique({
+      where: {
+        id: id,
+      },
+    });
+
+    if (!data) {
+      throw new NotFoundException({
+        success: false,
+        message: 'Data Kategori Tidak Ditemukan',
+        metadata: {
+          status: HttpStatus.NOT_FOUND,
+        },
+      });
+    }
+
+    return {
+      success: true,
+      message: 'Data Berhasil Ditampilkan',
+      data: data, // Sertakan data yang baru dibuat
+      metadata: {
+        status: HttpStatus.OK,
+      },
+    };
   }
 
   update(id: number, updateKategoriDto: UpdateKategoriDto) {
