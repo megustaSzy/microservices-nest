@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   HttpException,
   HttpStatus,
@@ -99,31 +100,43 @@ export class KategoriService {
 
   // fungsi detail data
   async findOne(id: number) {
-    // tampilkan data berdasarkan id
-    const data = await this.prisma.kategori.findUnique({
-      where: {
-        id: id,
-      },
-    });
+    try {
+      const data = await this.prisma.kategori.findUnique({
+        where: {
+          id: id,
+        },
+      });
 
-    if (!data) {
-      throw new NotFoundException({
-        success: false,
-        message: 'Data Kategori Tidak Ditemukan',
+      if (!data) {
+        throw new NotFoundException({
+          success: false,
+          message: 'Data Kategori Tidak Ditemukan',
+          metadata: {
+            status: HttpStatus.NOT_FOUND,
+          },
+        });
+      }
+
+      return {
+        success: true,
+        message: 'Data Kategori Ditemukan',
         metadata: {
-          status: HttpStatus.NOT_FOUND,
+          status: HttpStatus.OK,
+        },
+        data: data,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new BadRequestException({
+        success: false,
+        message: 'Parameter Harus Angka',
+        metadata: {
+          status: HttpStatus.BAD_REQUEST,
         },
       });
     }
-
-    return {
-      success: true,
-      message: 'Data Kategori Ditemukan',
-      metadata: {
-        status: HttpStatus.OK,
-      },
-      data: data,
-    };
   }
 
   update(id: number, updateKategoriDto: UpdateKategoriDto) {
