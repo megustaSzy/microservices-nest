@@ -44,7 +44,7 @@ export class KategoriService {
     if (exist) {
       throw new ConflictException({
         success: false,
-        message: 'Data Kategori Gagal Disimpan! (Nama Kategori Sudah Ada)',
+        message: process.env.FAILED_SAVE,
         metadata: {
           status: HttpStatus.CONFLICT,
         },
@@ -64,7 +64,7 @@ export class KategoriService {
     // Mengembalikan response sukses (Hanya satu return yang dieksekusi)
     return {
       success: true,
-      message: 'Data Kategori Berhasil Disimpan',
+      message: process.env.SUCCESS_SAVE,
       data: data, // Sertakan data yang baru dibuat
       metadata: {
         status: HttpStatus.CREATED,
@@ -89,7 +89,7 @@ export class KategoriService {
 
     return {
       success: true,
-      message: 'Data Kategori Ditemukan',
+      message: process.env.FOUND_SAVE,
       metadata: {
         status: HttpStatus.OK,
         total_data: data.length,
@@ -160,6 +160,23 @@ export class KategoriService {
         .toLowerCase()
         .trim();
 
+      const exist = await this.prisma.kategori.findFirst({
+        where: {
+          NOT: { id: id },
+          nama_filter: nama_filter,
+        },
+      });
+
+      if (exist) {
+        throw new ConflictException({
+          success: false,
+          message: 'Data Kategori Gagal Diubah! (Nama Kategori Sudah Ada)',
+          metadata: {
+            status: HttpStatus.CONFLICT,
+          },
+        });
+      }
+
       if (nama_filter)
         await this.prisma.kategori.update({
           where: { id },
@@ -177,9 +194,19 @@ export class KategoriService {
         },
       };
     } catch (error) {
-      if (error instanceof NotFoundException) {
+      // if (
+      //   error instanceof NotFoundException ||
+      //   error instanceof ConflictException
+      // ) {
+      //   throw error;
+      // }
+      // // if (error instanceof ConflictException) {
+      // //   throw error;
+      // // }
+      if (error instanceof HttpException) {
         throw error;
       }
+
       throw new BadRequestException({
         success: false,
         message: 'Parameter Harus Angka',
@@ -238,3 +265,5 @@ export class KategoriService {
     }
   }
 }
+
+// NULLISH DAN FALSY
