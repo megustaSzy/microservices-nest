@@ -9,6 +9,7 @@ import {
 import { CreateKategoriDto } from './dto/create-kategori.dto';
 import { UpdateKategoriDto } from './dto/update-kategori.dto';
 import { PrismaService } from '../prisma.service';
+import { notExistKategori } from '../common/utils/notExistKategori';
 
 @Injectable()
 export class KategoriService {
@@ -101,21 +102,11 @@ export class KategoriService {
   // fungsi detail data
   async findOne(id: number) {
     try {
-      const data = await this.prisma.kategori.findUnique({
-        where: {
-          id: id,
-        },
-      });
-
-      if (!data) {
-        throw new NotFoundException({
-          success: false,
-          message: 'Data Kategori Tidak Ditemukan',
-          metadata: {
-            status: HttpStatus.NOT_FOUND,
-          },
-        });
-      }
+      const data = await notExistKategori(
+        this.prisma.kategori,
+        id,
+        process.env.NOT_FOUND_KATEGORI!,
+      );
 
       return {
         success: true,
@@ -141,19 +132,11 @@ export class KategoriService {
 
   async update(id: number, updateKategoriDto: UpdateKategoriDto) {
     try {
-      const data = await this.prisma.kategori.findUnique({
-        where: { id },
-      });
-
-      if (!data) {
-        throw new NotFoundException({
-          success: false,
-          message: 'Data Kategori Tidak Ditemukan',
-          metadata: {
-            status: HttpStatus.NOT_FOUND,
-          },
-        });
-      }
+      await notExistKategori(
+        this.prisma.kategori,
+        id,
+        'Data Kategori Tidak Ditemukan',
+      );
 
       const nama_filter = (updateKategoriDto.nama || '')
         .replace(/\s/g, '')
@@ -220,21 +203,11 @@ export class KategoriService {
   async remove(id: number) {
     // return `This action removes a #${id} kategori`;
     try {
-      const data = await this.prisma.kategori.findUnique({
-        where: {
-          id: id,
-        },
-      });
-
-      if (!data) {
-        throw new NotFoundException({
-          success: false,
-          message: 'Data Kategori Tidak Ditemukan',
-          metadata: {
-            status: HttpStatus.NOT_FOUND,
-          },
-        });
-      }
+      await notExistKategori(
+        this.prisma.kategori,
+        id,
+        'Data Kategori Tidak Ditemukan',
+      );
 
       // hapus
       await this.prisma.kategori.delete({
