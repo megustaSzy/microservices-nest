@@ -1,15 +1,39 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBarangDto } from './dto/create-barang.dto';
 import { UpdateBarangDto } from './dto/update-barang.dto';
+import { PrismaService } from '../prisma.service';
+import { metadata } from 'reflect-metadata/no-conflict';
 
 @Injectable()
 export class BarangService {
+  constructor(private readonly prisma: PrismaService) {}
   create(createBarangDto: CreateBarangDto) {
     return 'This action adds a new barang';
   }
 
-  findAll() {
-    return `This action returns all barang`;
+  async findAll() {
+    const data = await this.prisma.barang.findMany();
+
+    if (data.length === 0) {
+      throw new NotFoundException({
+        success: false,
+        message: '',
+        metadata: {
+          status: HttpStatus.NOT_FOUND,
+          total_data: data.length,
+        },
+      });
+    }
+
+    return {
+      success: true,
+      message: '',
+      metadata: {
+        status: HttpStatus.OK,
+        total_data: data.length,
+      },
+      data: data,
+    };
   }
 
   findOne(id: number) {
