@@ -17,7 +17,7 @@ export class BarangService {
     if (data.length === 0) {
       throw new NotFoundException({
         success: false,
-        message: '',
+        message: process.env.NOT_FOUND_BARANG,
         metadata: {
           status: HttpStatus.NOT_FOUND,
           total_data: data.length,
@@ -27,7 +27,7 @@ export class BarangService {
 
     return {
       success: true,
-      message: '',
+      message: 'Data Barang Tidak Ditemukan',
       metadata: {
         status: HttpStatus.OK,
         total_data: data.length,
